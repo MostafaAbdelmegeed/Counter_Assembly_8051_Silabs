@@ -1,0 +1,1 @@
+"C:\Users\mosta\Documents\GitHub\Counter_Assembly_8051_Silabs\counter.obj"  TO "C:\Users\mosta\Documents\GitHub\Counter_Assembly_8051_Silabs\Counter_Assembly_Silabs"  RS(256) PL(68) PW(78)   
