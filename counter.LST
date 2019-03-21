@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     1
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.00d
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00AA          +1    56     ADC1CN  DATA  0AAH   ; ADC 1 CONTROL
   00AB          +1    57     ADC1CF   DATA  0ABH   ; ADC 1 ANALOG MUX CONFIGURATION
   00AC          +1    58     AMX1SL   DATA  0ACH   ; ADC 1 ANALOG MUX CHANNEL SELECT
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     2
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     2
 
   00AD          +1    59     P3IF     DATA  0ADH   ; PORT 3 EXTERNAL INTERRUPT FLAGS
   00AE          +1    60     SADEN1   DATA  0AEH   ; SERIAL PORT 1 SLAVE ADDRESS MASK
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00F0          +1   122     B        DATA  0F0H   ; B REGISTER
   00F1          +1   123     SCON1    DATA  0F1H   ; SERIAL PORT 1 CONTROL
   00F2          +1   124     SBUF1    DATA  0F2H   ; SERAIL PORT 1 DATA
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     3
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     3
 
   00F3          +1   125     SADDR1   DATA  0F3H   ; SERAIL PORT 1 
   00F4          +1   126     TL4      DATA  0F4H   ; TIMER 4 DATA - LOW BYTE
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
                 +1   188     ; T2CON C8H
   00C8          +1   189     CPRL2    BIT   T2CON.0 ; CAPTURE OR RELOAD SELECT
   00C9          +1   190     CT2      BIT   T2CON.1 ; TIMER OR COUNTER SELECT
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     4
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     4
 
   00CA          +1   191     TR2      BIT   T2CON.2 ; TIMER 2 ON/OFF CONTROL
   00CB          +1   192     EXEN2    BIT   T2CON.3 ; TIMER 2 EXTERNAL ENABLE FLAG
@@ -250,65 +250,81 @@ LOC  OBJ            LINE     SOURCE
   00FF          +1   235     SPIF     BIT   SPI0CN.7 ; SPI 0 INTERRUPT FLAG
                      236     
                      237     
-  0100               238     TABLE EQU 100H
+0000                 238     ORG 0
                      239     
-                     240     
-  0090               241     PING             EQU   P1.0
-  0091               242     PINF                             EQU     P1.1
-  0092               243     PINA                             EQU     P1.2
-  0093               244     PINB                             EQU     P1.3
-  0094               245     PINE                             EQU     P1.4
-  0095               246     PIND                             EQU     P1.5
-  0096               247     PINC                             EQU     P1.6
-  0097               248     PINDOT                   EQU     P1.7
-                     249     
-0000                 250     ORG 0
-                     251     
-0000                 252     MAIN: 
-                     253     ; Enable the Port I/O Crossbar
-0000 75E340          254           MOV   XBR2, #40h
-0003 43BD40          255                             ORL   P1MDIN, #40h       
-0006 43A540          256           ORL   P1MDOUT,#40h 
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     5
+  0100               240     TABLE EQU 100H
+                     241     
+                     242     
+                     243     ; Enable the Port I/O Crossbar
+0000 75FFDE          244                             MOV WDTCN, #0DEh
+0003 75FFAD          245           MOV WDTCN, #0ADh
+0006 75E340          246           MOV XBR2, #40H
+0009 43BDFF          247                             ORL P1MDIN, #0FFH
+000C 43A5FF          248           ORL P1MDOUT,#0FFH
+000F 74FF            249                             MOV A, #0FFH
+0011 F5A0            250                             MOV P2, A
+                     251                             
+                     252     
+0013                 253     MAIN: 
+0013 7400            254                             MOV A,#00H
+0015 F5A0            255                             MOV P2,A
+0017 900100          256                             MOV DPTR,#TABLE
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     5
 
-                     257                             
-                     258                             
-0009 7400            259                             MOV A,#00H
-000B 900100          260                             MOV DPTR,#TABLE
-000E F8              261                             MOV R0,A
-                     262     
-                     263     
-                     264     
-                     265                     
+001A F8              257                             MOV R0,A
+                     258     
+001B                 259     LOOP: 
+001B 93              260                             MOVC A,@A+DPTR
+001C F590            261                             MOV P1,A
+001E 08              262                             INC R0
+001F E8              263                             MOV A,R0
+0020 1122            264                             CALL DELAY
+                     265                             
                      266     
-000F 93              267     LOOP: MOVC A,@A+DPTR
-0010 F590            268                             MOV P1,A
-0012 08              269                             INC R0
-0013 E8              270                             MOV A,R0
-0014 111B            271                             CALL DELAY
-0016 B80AF6          272                             CJNE R0,#0AH,LOOP
-                     273     
-                     274     
-                     275                             
-0019 80E5            276             JMP MAIN
-                     277     
-001B                 278     DELAY:
-001B 7900            279                                     MOV R1,#00H
-001D 7A00            280                                     MOV R2,#00H
-001F 7B05            281                                     MOV R3,#05H
-0021                 282                                     LOOP1:
-0021 D9FE            283                                                                     DJNZ R1,LOOP1
-0023 DAFC            284                                                                     DJNZ R2,LOOP1
-                     285                                                                     
-0025 22              286                                     RET
-                     287     
-0100                 288                             ORG TABLE
-0100 3F065B4F        289                             DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
+                     267     
+0022                 268     DELAY:  
+0022 7932            269                                     MOV R1,#50
+0024 7A1E            270                                     MOV R2,#30
+0026 7D0A            271                                     MOV R5,#10
+0028 7CFF            272                                     MOV R4,#255
+002A 7BFF            273                                     MOV R3,#255
+002C 20A006          274                                     JB P2.0,LOOP1
+002F 20A10E          275                                     JB P2.1,LOOP2
+0032 20A216          276                                     JB P2.2,LOOP3
+0035                 277                                     LOOP1:  
+0035 DBFE            278                                                                     DJNZ R3,LOOP1
+0037 DCFC            279                                                                     DJNZ R4,LOOP1
+0039 DDFA            280                                                                     DJNZ R5,LOOP1
+003B B80ADD          281                                                                     CJNE R0,#0AH,LOOP
+                     282           
+003E 80D3            283                                                                     JMP MAIN
+                     284                                                                     
+0040                 285                                     LOOP2:
+0040 DBFE            286                                                                     DJNZ R3,LOOP2
+0042 DCFC            287                                                                     DJNZ R4,LOOP2
+0044 D9FA            288                                                                     DJNZ R1,LOOP2
+0046 B80AD2          289                                                                     CJNE R0,#0AH,LOOP
+                     290           
+0049 80C8            291                                                                     JMP MAIN
+004B                 292                                     LOOP3:  
+004B DBFE            293                                                                     DJNZ R3,LOOP3
+004D DCFC            294                                                                     DJNZ R4,LOOP3
+004F DAFA            295                                                                     DJNZ R2,LOOP3
+0051 B80AC7          296                                                                     CJNE R0,#0AH,LOOP
+                     297           
+0054 80BD            298                                                                     JMP MAIN
+                     299                                                                     
+0056 22              300     RET
+                     301     
+                     302     
+                     303     
+0100                 304                             ORG TABLE
+0100 3F065B4F        305                             DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
 0104 666D7D07                
 0108 7F6F                    
-                     290     END
+                     306     END
                              
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     6
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     6
 
 XREF SYMBOL TABLE LISTING
 ---- ------ ----- -------
@@ -361,7 +377,7 @@ DAC0L. . . . . . .  D ADDR   00D2H   A      93#
 DAC1CN . . . . . .  D ADDR   00D7H   A      98#
 DAC1H. . . . . . .  D ADDR   00D6H   A      97#
 DAC1L. . . . . . .  D ADDR   00D5H   A      96#
-DELAY. . . . . . .  C ADDR   001BH   A      271 278#
+DELAY. . . . . . .  C ADDR   0022H   A      264 268#
 DPH. . . . . . . .  D ADDR   0083H   A      19#
 DPL. . . . . . . .  D ADDR   0082H   A      18#
 EA . . . . . . . .  B ADDR   00A8H.7 A      169#
@@ -376,7 +392,7 @@ ENSMB. . . . . . .  B ADDR   00C0H.6 A      186#
 ES . . . . . . . .  B ADDR   00A8H.4 A      167#
 ET0. . . . . . . .  B ADDR   00A8H.1 A      164#
 ET1. . . . . . . .  B ADDR   00A8H.3 A      166#
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     7
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     7
 
 ET2. . . . . . . .  B ADDR   00A8H.5 A      168#
 EX0. . . . . . . .  B ADDR   00A8H.0 A      163#
@@ -393,9 +409,11 @@ IE1. . . . . . . .  B ADDR   0088H.3 A      146#
 IP . . . . . . . .  D ADDR   00B8H   A      68# 172 173 174 175 176 177
 IT0. . . . . . . .  B ADDR   0088H.0 A      143#
 IT1. . . . . . . .  B ADDR   0088H.2 A      145#
-LOOP . . . . . . .  C ADDR   000FH   A      267# 272
-LOOP1. . . . . . .  C ADDR   0021H   A      282# 283 284
-MAIN . . . . . . .  C ADDR   0000H   A      252# 276
+LOOP . . . . . . .  C ADDR   001BH   A      259# 281 289 296
+LOOP1. . . . . . .  C ADDR   0035H   A      274 277# 278 279 280
+LOOP2. . . . . . .  C ADDR   0040H   A      275 285# 286 287 288
+LOOP3. . . . . . .  C ADDR   004BH   A      276 292# 293 294 295
+MAIN . . . . . . .  C ADDR   0013H   A      253# 283 291 298
 MODF . . . . . . .  B ADDR   00F8H.5 A      233#
 MSTEN. . . . . . .  B ADDR   00F8H.1 A      229#
 OSCICN . . . . . .  D ADDR   00B2H   A      64#
@@ -404,10 +422,10 @@ OV . . . . . . . .  B ADDR   00D0H.2 A      201#
 P. . . . . . . . .  B ADDR   00D0H.0 A      199#
 P0 . . . . . . . .  D ADDR   0080H   A      16#
 P0MDOUT. . . . . .  D ADDR   00A4H   A      50#
-P1 . . . . . . . .  D ADDR   0090H   A      32# 241 242 243 244 245 246 247 248 268
-P1MDIN . . . . . .  D ADDR   00BDH   A      73# 255
-P1MDOUT. . . . . .  D ADDR   00A5H   A      51# 256
-P2 . . . . . . . .  D ADDR   00A0H   A      47#
+P1 . . . . . . . .  D ADDR   0090H   A      32# 261
+P1MDIN . . . . . .  D ADDR   00BDH   A      73# 247
+P1MDOUT. . . . . .  D ADDR   00A5H   A      51# 248
+P2 . . . . . . . .  D ADDR   00A0H   A      47# 250 255 274 275 276
 P2MDOUT. . . . . .  D ADDR   00A6H   A      52#
 P3 . . . . . . . .  D ADDR   00B0H   A      62#
 P3IF . . . . . . .  D ADDR   00ADH   A      59#
@@ -437,21 +455,13 @@ PCA0H. . . . . . .  D ADDR   00F9H   A      131#
 PCA0L. . . . . . .  D ADDR   00E9H   A      115#
 PCA0MD . . . . . .  D ADDR   00D9H   A      100#
 PCON . . . . . . .  D ADDR   0087H   A      23#
-PINA . . . . . . .  B ADDR   0090H.2 A      243#
-PINB . . . . . . .  B ADDR   0090H.3 A      244#
-PINC . . . . . . .  B ADDR   0090H.6 A      247#
-PIND . . . . . . .  B ADDR   0090H.5 A      246#
-PINDOT . . . . . .  B ADDR   0090H.7 A      248#
-PINE . . . . . . .  B ADDR   0090H.4 A      245#
-PINF . . . . . . .  B ADDR   0090H.1 A      242#
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     8
-
-PING . . . . . . .  B ADDR   0090H.0 A      241#
 PS . . . . . . . .  B ADDR   00B8H.4 A      176#
 PSCTL. . . . . . .  D ADDR   008FH   A      31#
 PSW. . . . . . . .  D ADDR   00D0H   A      91# 199 200 201 202 203 204 205 206
 PT0. . . . . . . .  B ADDR   00B8H.1 A      173#
 PT1. . . . . . . .  B ADDR   00B8H.3 A      175#
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     8
+
 PT2. . . . . . . .  B ADDR   00B8H.5 A      177#
 PX0. . . . . . . .  B ADDR   00B8H.0 A      172#
 PX1. . . . . . . .  B ADDR   00B8H.2 A      174#
@@ -499,7 +509,7 @@ STA. . . . . . . .  B ADDR   00C0H.5 A      185#
 STO. . . . . . . .  B ADDR   00C0H.4 A      184#
 T2CON. . . . . . .  D ADDR   00C8H   A      84# 189 190 191 192 193 194 195 196
 T4CON. . . . . . .  D ADDR   00C9H   A      85#
-TABLE. . . . . . .  N NUMB   0100H   A      238# 260 288
+TABLE. . . . . . .  N NUMB   0100H   A      240# 256 304
 TB8. . . . . . . .  B ADDR   0098H.3 A      156#
 TCLK . . . . . . .  B ADDR   00C8H.4 A      193#
 TCON . . . . . . .  D ADDR   0088H   A      24# 143 144 145 146 147 148 149 150
@@ -512,14 +522,14 @@ TH2. . . . . . . .  D ADDR   00CDH   A      89#
 TH4. . . . . . . .  D ADDR   00F5H   A      127#
 TI . . . . . . . .  B ADDR   0098H.1 A      154#
 TL0. . . . . . . .  D ADDR   008AH   A      26#
-A51 MACRO ASSEMBLER  COUNTER                                                              03/16/2019 20:21:37 PAGE     9
-
 TL1. . . . . . . .  D ADDR   008BH   A      27#
 TL2. . . . . . . .  D ADDR   00CCH   A      88#
 TL4. . . . . . . .  D ADDR   00F4H   A      126#
 TMOD . . . . . . .  D ADDR   0089H   A      25#
 TMR3CN . . . . . .  D ADDR   0091H   A      33#
 TMR3H. . . . . . .  D ADDR   0095H   A      37#
+A51 MACRO ASSEMBLER  COUNTER                                                              03/19/2019 14:52:52 PAGE     9
+
 TMR3L. . . . . . .  D ADDR   0094H   A      36#
 TMR3RLH. . . . . .  D ADDR   0093H   A      35#
 TMR3RLL. . . . . .  D ADDR   0092H   A      34#
@@ -528,10 +538,10 @@ TR1. . . . . . . .  B ADDR   0088H.6 A      149#
 TR2. . . . . . . .  B ADDR   00C8H.2 A      191#
 TXBSY. . . . . . .  B ADDR   00F8H.3 A      231#
 WCOL . . . . . . .  B ADDR   00F8H.6 A      234#
-WDTCN. . . . . . .  D ADDR   00FFH   A      137#
+WDTCN. . . . . . .  D ADDR   00FFH   A      137# 244 245
 XBR0 . . . . . . .  D ADDR   00E1H   A      107#
 XBR1 . . . . . . .  D ADDR   00E2H   A      108#
-XBR2 . . . . . . .  D ADDR   00E3H   A      109# 254
+XBR2 . . . . . . .  D ADDR   00E3H   A      109# 246
 
 
 REGISTER BANK(S) USED: 0 
